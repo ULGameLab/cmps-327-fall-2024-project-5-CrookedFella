@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using MapGen;
+using System.Linq;
 
 public class Node
 {
@@ -58,7 +59,26 @@ public class PathFinder
             // You just need to fill code inside this foreach only
             foreach (Tile nextTile in current.tile.Adjacents)
             {
-                
+                if (nextTile.isPassable && DoneList.Find(n => n.tile == nextTile) != null)
+                {
+                    continue;
+                }
+                double cur = 0;
+                if(TODOList.Find(n => n.tile == nextTile) != null)
+                {
+                    cur = TODOList.Find(n => n.tile == nextTile).costSoFar;
+                }
+                if (HeuristicsDistance(current.tile, nextTile) + current.costSoFar < cur && cur != 0 || !TODOList.Any(n => n.tile == nextTile))
+                {
+                    if (TODOList.Find(n => n.tile == nextTile) == null)
+                    {
+                        TODOList.Add(new Node(nextTile, HeuristicsDistance(nextTile, goal), current, HeuristicsDistance(current.tile, nextTile) + current.costSoFar));
+                    }
+                    else
+                    {
+                        TODOList[TODOList.FindIndex(n => n.tile == nextTile)] = new Node(nextTile, HeuristicsDistance(nextTile, goal), current, HeuristicsDistance(current.tile, nextTile) + current.costSoFar);
+                    }
+                }
             }
         }
         return new Queue<Tile>(); // Returns an empty Path if no path is found
